@@ -10,22 +10,21 @@ gem 'omniauth-github'
 
 config/initializers/omniauth.rb
 
-'''ruby
-
+```
 OmniAuth.config.logger = Rails.logger
 Rails.application.config.middleware.use OmniAuth::Builder do
     provider :github, ENV['ID'], ENV['SECRET']
 end
 
-'''
+```
 
 Terminal
 
 rails g model user provider uid name oauth_token oauth_expires_at:datetime
 rake db:migrate
 
-models/user.rb '''ruby
-
+models/user.rb 
+```
 def self.from_omniauth(auth)
     where(auth.slice(:provider, :uid)).first_or_initialize.tap do |user|
         user.provider = auth.provider
@@ -36,25 +35,36 @@ def self.from_omniauth(auth)
         user.save!
     end
 end
+```
 
-config/routes.rb '''
-
+config/routes.rb 
+```
 match 'auth/:provider/callback', to: 'sessions#create'
 match 'auth/failure', to: redirect('/')
 match 'signout', to: 'sessions#destroy', as: 'signout'
-
-'''
+```
 
 Terminal rails g controller sessions
 
-session_controller.rb '''ruby class SessionsController < ApplicationController def create user = User.from_omniauth(env) session[:user_id] = user.id redirect_to root_url end def destroy session[:user_id] = nil redirect_to root_url end end ''' application_controller.rb '''ruby
+session_controller.rb 
+```
+	class SessionsController < ApplicationController
+		def create
+			 user = User.from_omniauth(env) session[:user_id] = user.id redirect_to root_url end def destroy session[:user_id] = nil redirect_to root_url 
+		end 
+	end
 
+application_controller.rb 
+```
     private
     def current_user
         @current_user ||= User.find(session[:user_id]) if session[:user_id]
     end
     helper_method :current_user
+```
+
 layouts/application.html.erb
+```
     <div id="user_nav">
         <% if current_user %>
             Signed in as <strong><%= current_user.name %></strong>!
@@ -64,10 +74,10 @@ layouts/application.html.erb
         <% end %>
     </div>
 
-'''
+```
 
-Optionnel app/assets/javascripts/facebook.js.coffee.erb '''javascript
-
+Optionnel app/assets/javascripts/facebook.js.coffee.erb 
+```
 jQuery ->
     $('body').prepend('<div id="gh-root"></div>')
     $.ajax
@@ -84,5 +94,4 @@ window.GHAsyncInit = ->
         GH.getLoginStatus (response) ->
             GH.logout() if response.authResponse
         true
-
-'''
+```
