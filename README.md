@@ -1,14 +1,15 @@
-####Github connect
+##Github connect
 
 ###How to install login connect for Github via Omniauth
-Source railscasts.com/episodes/360-facebook-authentication
 
-Gemfile
+[Source](railscasts.com/episodes/360-facebook-authentication)
+
+####Gemfile
 
 gem 'omniauth'
 gem 'omniauth-github'
 
-config/initializers/omniauth.rb
+####config/initializers/omniauth.rb
 
 ```
 OmniAuth.config.logger = Rails.logger
@@ -18,12 +19,12 @@ end
 
 ```
 
-Terminal
+####Terminal
 
 rails g model user provider uid name oauth_token oauth_expires_at:datetime
 rake db:migrate
 
-models/user.rb 
+####models/user.rb 
 ```
 def self.from_omniauth(auth)
     where(auth.slice(:provider, :uid)).first_or_initialize.tap do |user|
@@ -37,24 +38,28 @@ def self.from_omniauth(auth)
 end
 ```
 
-config/routes.rb 
+####config/routes.rb 
 ```
 match 'auth/:provider/callback', to: 'sessions#create'
 match 'auth/failure', to: redirect('/')
 match 'signout', to: 'sessions#destroy', as: 'signout'
 ```
 
-Terminal rails g controller sessions
+####Terminal
+```
+rails g controller sessions
+```
 
-session_controller.rb 
+####session_controller.rb 
 ```
 	class SessionsController < ApplicationController
 		def create
 			 user = User.from_omniauth(env) session[:user_id] = user.id redirect_to root_url end def destroy session[:user_id] = nil redirect_to root_url 
 		end 
 	end
+```
 
-application_controller.rb 
+####application_controller.rb 
 ```
     private
     def current_user
@@ -63,7 +68,7 @@ application_controller.rb
     helper_method :current_user
 ```
 
-layouts/application.html.erb
+####layouts/application.html.erb
 ```
     <div id="user_nav">
         <% if current_user %>
@@ -76,7 +81,10 @@ layouts/application.html.erb
 
 ```
 
-Optionnel app/assets/javascripts/facebook.js.coffee.erb 
+###Optionnel
+
+####app/assets/javascripts/facebook.js.coffee.erb 
+
 ```
 jQuery ->
     $('body').prepend('<div id="gh-root"></div>')
