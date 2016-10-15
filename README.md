@@ -1,4 +1,4 @@
-##Github connect
+##Github connect [![Build Status](https://travis-ci.org/simplonco/rails-github-connect.svg?branch=master)](https://travis-ci.org/simplonco/rails-github-connect)
 
 ###How to install login connect for Github via Omniauth
 
