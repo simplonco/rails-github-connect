@@ -1,17 +1,19 @@
-##Github connect [![Build Status](https://travis-ci.org/simplonco/rails-github-connect.svg?branch=master)](https://travis-ci.org/simplonco/rails-github-connect)
+# Github connect [![Build Status](https://travis-ci.org/simplonco/rails-github-connect.svg?branch=master)](https://travis-ci.org/simplonco/rails-github-connect)
 
-###How to install login connect for Github via Omniauth
+## How to install login connect for Github via Omniauth
 
 [Source](railscasts.com/episodes/360-facebook-authentication)
 
-####Gemfile
+### Gemfile
 
+```ruby
 gem 'omniauth'
 gem 'omniauth-github'
-
-####config/initializers/omniauth.rb
-
 ```
+
+### `config/initializers/omniauth.rb`
+
+```ruby
 OmniAuth.config.logger = Rails.logger
 Rails.application.config.middleware.use OmniAuth::Builder do
     provider :github, ENV['ID'], ENV['SECRET']
@@ -19,13 +21,16 @@ end
 
 ```
 
-####Terminal
+### Terminal
 
+```shell
 rails g model user provider uid name oauth_token oauth_expires_at:datetime
 rake db:migrate
-
-####models/user.rb 
 ```
+
+### `models/user.rb `
+
+```ruby
 def self.from_omniauth(auth)
     where(auth.slice(:provider, :uid)).first_or_initialize.tap do |user|
         user.provider = auth.provider
@@ -38,52 +43,57 @@ def self.from_omniauth(auth)
 end
 ```
 
-####config/routes.rb 
-```
+### `config/routes.rb`
+
+```ruby
 match 'auth/:provider/callback', to: 'sessions#create'
 match 'auth/failure', to: redirect('/')
 match 'signout', to: 'sessions#destroy', as: 'signout'
 ```
 
-####Terminal
-```
+### Terminal
+
+```shell
 rails g controller sessions
 ```
 
-####session_controller.rb 
-```
-	class SessionsController < ApplicationController
-		def create
-			 user = User.from_omniauth(env) session[:user_id] = user.id redirect_to root_url end def destroy session[:user_id] = nil redirect_to root_url 
-		end 
-	end
+### `session_controller.rb `
+
+```ruby
+class SessionsController < ApplicationController
+	def create
+		 user = User.from_omniauth(env) session[:user_id] = user.id redirect_to root_url end def destroy session[:user_id] = nil redirect_to root_url 
+	end 
+end
 ```
 
-####application_controller.rb 
-```
-    private
-    def current_user
-        @current_user ||= User.find(session[:user_id]) if session[:user_id]
-    end
-    helper_method :current_user
-```
+### `application_controller.rb`
 
-####layouts/application.html.erb
-```
-    <div id="user_nav">
-        <% if current_user %>
-            Signed in as <strong><%= current_user.name %></strong>!
-            <%= link_to "Sign out", signout_path, id: "sign_out" %>
-        <% else %>
-            <%= link_to "Sign in with Github", "/auth/github", id: "sign_in" %>
-        <% end %>
-    </div>
-
+```ruby
+private
+def current_user
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+end
+helper_method :current_user
 ```
 
-###Optionnel
+### `layouts/application.html.erb`
 
-####app/assets/javascripts/facebook.js.coffee.erb 
+```
+<div id="user_nav">
+    <% if current_user %>
+        Signed in as <strong><%= current_user.name %></strong>!
+        <%= link_to "Sign out", signout_path, id: "sign_out" %>
+    <% else %>
+        <%= link_to "Sign in with Github", "/auth/github", id: "sign_in" %>
+    <% end %>
+</div>
+
+```
+
+## Optionnel
+
+### `app/assets/javascripts/facebook.js.coffee.erb`
 
 ```
 jQuery ->
